@@ -1,0 +1,11 @@
+spank-private-tmp (0.20161205-1+c9+1) calibre9; urgency=medium
+
+  * Only mount /tmp
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 05 Dec 2016 17:21:26 +0100
+
+spank-private-tmp (0.20161201-1+c9+1) calibre9; urgency=low
+
+  * Initial release.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 01 Dec 2016 10:26:36 +0100

@@ -1,0 +1,13 @@
+Source: spank-private-tmp
+Section: libs
+Priority: extra
+Maintainer: Ana Guerrero <ana-externe.guerrero@edf.fr>
+Build-Depends: debhelper (>= 8), libslurm-dev
+Standards-Version: 3.9.1
+
+Package: slurm-wlm-spank-plugin-private-tmp
+Architecture: any
+Depends: slurm-wlm-basic-plugins, ${misc:Depends}, ${shlibs:Depends}
+Description: Slurm spank plugin for creating a private /tmp for each job
+ This plugin creates a privare /tmp directory for each Slurm
+ job.
