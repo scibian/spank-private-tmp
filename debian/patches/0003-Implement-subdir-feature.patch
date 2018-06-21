@@ -1,0 +1,246 @@
+From: Thomas HAMEL <thomas-externe.hamel@edf.fr>
+Date: Thu, 21 Jun 2018 15:30:37 +0200
+Subject: Implement subdir feature
+
+The subdir feature permits add directories from the system inside
+the job /tmp. This has been implemented to make X11 sockets available
+in the well known location "/tmp/.X11-unix/X0". More recent X11
+programs use the socket "@/tmp/.X11-unix/X0" (@ is \0 this context), but
+some older programs use the version with a real file.
+---
+ README           |  16 ++++++--
+ private-tmpdir.c | 113 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 125 insertions(+), 4 deletions(-)
+
+diff --git a/README b/README
+index 6e24bc7..8c75028 100644
+--- a/README
++++ b/README
+@@ -28,12 +28,19 @@ mount:  Private mount point. This can be specified more than once.
+         For each mount, a directory will be created in the base dir
+         and then bind mounted on the specified mount point.
+ 
++subdir: Directory bind mounted as a subdir in a mount point.
++
++	For each subdir a directory will be created on the current
++	mount point (previous mount= option). And this directory
++	is bind mounted inside it.
++
++
+ Example
+ -------
+ 
+ plugstack.conf:
+ 
+-required  private-tmpdir.so  base=/tmp/slurm mount=/var/tmp mount=/tmp
++required  private-tmpdir.so  base=/tmp/slurm mount=/var/tmp mount=/tmp subdir=/tmp/.X11-unix
+ 
+ When a job with jobid 100 and restart count 0, the following
+ directories will be created on compute nodes:
+@@ -41,15 +48,18 @@ directories will be created on compute nodes:
+  /tmp/slurm.100.0
+  /tmp/slurm.100.0/var_tmp
+  /tmp/slurm.100.0/tmp
++ /tmp/slurm.100.0/tmp/.X11-unix
+ 
+ In private namespaces the following bind mounts are done:
+ 
+   /tmp/slurm.100.0/var_tmp on /var/tmp
+   /tmp/slurm.100.0/tmp     on /tmp
++  /tmp/.X11-unix           on /tmp/.X11-unix
+ 
+ Note: In this example it is important that mount=/tmp is specified
+-      last, since after /tmp/slurm.100.0/tmp is bind mounted on /tmp
+-      directories in /tmp/slurm.* can no longer be accessed.
++      last (but before subdir=), since after /tmp/slurm.100.0/tmp is
++      bind mounted on /tmp directories in /tmp/slurm.* can no longer
++      be accessed.
+ 
+ Cleanup
+ -------
+diff --git a/private-tmpdir.c b/private-tmpdir.c
+index fa97132..1015228 100644
+--- a/private-tmpdir.c
++++ b/private-tmpdir.c
+@@ -20,6 +20,7 @@
+ #include <slurm/spank.h>
+ #include <unistd.h>
+ #include <sched.h>
++#include <libgen.h>
+ 
+ SPANK_PLUGIN(private-tmpdir, 1);
+ 
+@@ -39,8 +40,12 @@ static char *bases[MAX_BIND_DIRS];
+ static char *base_paths[MAX_BIND_DIRS];
+ static char *bind_dirs[MAX_BIND_DIRS];
+ static char *bind_paths[MAX_BIND_DIRS];
++static int subdir_binds[MAX_BIND_DIRS];
++static char *subdir_sources[MAX_BIND_DIRS];
++static char *subdir_dirs[MAX_BIND_DIRS];
+ static int bind_count = 0;
+ static int base_count = 0;
++static int subdir_count = 0;
+ // Globals
+ 
+ static int _tmpdir_bind(spank_t sp, int ac, char **av);
+@@ -90,6 +95,18 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
+ 			return -1;
+ 		}
+ 	}
++	for (i = 0; i < subdir_count; i++) {
++		if (mkdir(subdir_dirs[i], 0700)) {
++			slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
++				    subdir_dirs[i]);
++			return -1;
++		}
++		if (chown(subdir_dirs[i], uid, gid)) {
++			slurm_error("private-tmpdir: chown(%s,%u,%u): %m",
++				    subdir_dirs[i], uid, gid);
++			return -1;
++		}
++	}
+ 	rc = _tmpdir_bind(sp, ac, av);
+ 	_tmpdir_cleanup(sp, ac, av);
+ 	return rc;
+@@ -103,6 +120,7 @@ int slurm_spank_init_post_opt(spank_t sp, int ac, char **av)
+ static int _tmpdir_bind(spank_t sp, int ac, char **av)
+ {
+ 	int i;
++	struct stat stat_result;
+ 
+ 	// only on cluster nodes
+ 	if (!spank_remote(sp))
+@@ -138,11 +156,29 @@ static int _tmpdir_bind(spank_t sp, int ac, char **av)
+ 		     jobid);
+ 		return -1;
+ 	}
++	// mount --bind subdir_sources[i] subdir_dirs[i]
++	slurm_debug("private-tmpdir: %d subdirs to mount", subdir_count);
++	for (i = 0; i < subdir_count; i++) {
++		if (stat(subdir_sources[i], &stat_result) != 0 || ! S_ISDIR(stat_result.st_mode)) {
++			slurm_error("private-tmpdir: subdir source %s is not a directory, ignoring",
++					subdir_sources[i]);
++			continue;
++		}
++		slurm_debug("private-tmpdir: mounting: %s %s", subdir_sources[i],
++			    subdir_dirs[i]);
++
++		if (mount(subdir_sources[i], subdir_dirs[i], "none", MS_BIND, NULL)) {
++			slurm_error
++			    ("private-tmpdir: failed to mount subdir %s for job: %u, %m",
++			     subdir_dirs[i], jobid);
++			return -1;
++		}
++	}
+ 	// mount --bind bind_paths[i] bind_dirs[i]
+ 	for (i = 0; i < bind_count; i++) {
+ 		slurm_debug("private-tmpdir: mounting: %s %s", bind_paths[i],
+ 			    bind_dirs[i]);
+-		if (mount(bind_paths[i], bind_dirs[i], "none", MS_BIND, NULL)) {
++		if (mount(bind_paths[i], bind_dirs[i], "none", MS_BIND | MS_REC, NULL)) {
+ 			slurm_error
+ 			    ("private-tmpdir: failed to mount %s for job: %u, %m",
+ 			     bind_dirs[i], jobid);
+@@ -158,6 +194,7 @@ static int _tmpdir_cleanup(spank_t sp, int ac, char **av)
+ 	int i;
+ 
+ 	for (i = 0; i < MAX_BIND_DIRS; i++) {
++		// Clean binds
+ 		if (bases[i] != prev_base) {
+ 			prev_base = bases[i];
+ 			free(bases[i]);
+@@ -165,6 +202,10 @@ static int _tmpdir_cleanup(spank_t sp, int ac, char **av)
+ 		free(base_paths[i]);
+ 		free(bind_dirs[i]);
+ 		free(bind_paths[i]);
++
++		// Clean subdirs
++		free(subdir_sources[i]);
++		free(subdir_dirs[i]);
+ 	}
+ 	return 0;
+ }
+@@ -245,6 +286,43 @@ static int _tmpdir_init(spank_t sp, int ac, char **av)
+ 		}
+ 		free(tmp);
+ 	}
++	// Init subdir paths
++	for (int i = 0; i < subdir_count; i++) {
++		// Init subdir dirs path(s)
++		subdir_dirs[i] = malloc(
++			strlen(bind_paths[subdir_binds[i]])
++			+ strlen(subdir_sources[i]) + 2);
++		if (!subdir_dirs[i]) {
++			slurm_error
++			    ("private-tmpdir: Can't malloc subdir_dirs[i]: %m");
++			return -1;
++		}
++		char *tmp = strdup(subdir_sources[i]);
++		if (!tmp) {
++			slurm_error
++			    ("private-tmpdir: Can't strdup subdir_sources[i]: %m");
++			return -1;
++		}
++		char *bname = strdup(basename(tmp));
++		if (!bname) {
++			slurm_error
++			    ("private-tmpdir: Can't strdup basename(tmp): %m");
++			free(tmp);
++			return -1;
++		}
++		n = snprintf(subdir_dirs[i], PATH_MAX, "%s/%s",
++			     bind_paths[subdir_binds[i]], bname);
++		if (n < 0 || n > PATH_MAX - 1) {
++			slurm_error
++			    ("private-tmpdir: \"%s/%s\" too large. Aborting",
++			     bind_paths[subdir_binds[i]], bname);
++			free(tmp);
++			free(bname);
++			return -1;
++		}
++		free(tmp);
++		free(bname);
++	}
+ 	return 0;
+ }
+ 
+@@ -312,6 +390,39 @@ static int _tmpdir_init_opts(spank_t sp, int ac, char **av)
+ 			bind_count++;
+ 			continue;
+ 		}
++		if (strncmp("subdir=", av[i], 7) == 0) {
++			// subdir= should be after a mount=
++			if (bind_count == 0) {
++				slurm_error ("private-tmpdir: subdir= should come after mount=");
++				return -1;
++			}
++			const char *optarg = av[i] + 7;
++			if (subdir_count == MAX_BIND_DIRS) {
++				slurm_error
++				    ("private-tmpdir: Reached MAX_BIND_DIRS (%d)",
++				     MAX_BIND_DIRS);
++				return -1;
++			}
++			if (!strlen(optarg)) {
++				slurm_error
++				    ("private-tmpdir: no argument given to subdir= option");
++				return -1;
++			}
++			if (optarg[0] != '/') {
++				slurm_error
++				    ("private-tmpdir: subdir= option must start with a '/': (%s)",
++				     optarg);
++				return -1;
++			}
++			subdir_binds[subdir_count] = bind_count - 1;
++			subdir_sources[subdir_count] = strdup(optarg);
++			if (!subdir_sources[subdir_count]) {
++				slurm_error("private-tmpdir: can't malloc :-(");
++				return -1;
++			}
++			subdir_count++;
++			continue;
++		}
+ 		slurm_error("private-tmpdir: Invalid option \"%s\"", av[i]);
+ 		return -1;
+ 	}
