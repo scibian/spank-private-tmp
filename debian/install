@@ -1,0 +1,3 @@
+etc/slurm-llnl/plugstack.conf.d/*
+usr/lib/slurm/*
+
