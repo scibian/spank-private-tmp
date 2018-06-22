@@ -7,9 +7,19 @@ Standards-Version: 3.9.1
 Vcs-Git: https://github.com/scibian/spank-private-tmp.git
 Vcs-Browser: https://github.com/scibian/spank-private-tmp
 
-Package: slurm-wlm-spank-plugin-private-tmp
+Package: slurm-wlm-spank-plugin-private-tmpdir
 Architecture: any
+Replaces: slurm-wlm-spank-plugin-private-tmp (<< 0.20180328.git0dd4a96-0sci8u1)
+Breaks: slurm-wlm-spank-plugin-private-tmp (<< 0.20180328.git0dd4a96-0sci8u1)
 Depends: slurm-wlm-basic-plugins, ${misc:Depends}, ${shlibs:Depends}
 Description: Slurm spank plugin for creating a private /tmp for each job
  This plugin creates a privare /tmp directory for each Slurm
  job.
+
+Package: slurm-wlm-spank-plugin-private-tmp
+Depends: slurm-wlm-spank-plugin-private-tmpdir, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

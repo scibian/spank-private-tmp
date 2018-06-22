@@ -1,0 +1,31 @@
+From: Thomas HAMEL <thomas-externe.hamel@edf.fr>
+Date: Thu, 21 Jun 2018 15:21:46 +0200
+Subject: Add an install target
+
+Install target is used by the debian rules
+---
+ Makefile | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 60b798e..01fe208 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,17 @@
++LIBDIR  ?= /usr/lib
++CONFDIR ?= /etc/slurm-llnl/plugstack.conf.d
++
+ all: private-tmpdir.so
+ 
+ private-tmpdir.so: private-tmpdir.c
+ 	gcc -std=gnu99 -Wall -o private-tmpdir.o -fPIC -c private-tmpdir.c
+ 	gcc -shared -o private-tmpdir.so private-tmpdir.o
+ 
++install:
++	mkdir -p $(DESTDIR)/$(LIBDIR)/slurm
++	mkdir -p $(DESTDIR)/$(CONFDIR)
++	install -m 755 private-tmpdir.so $(DESTDIR)/$(LIBDIR)/slurm/
++	install -m 644 private-tmpdir.conf $(DESTDIR)/$(CONFDIR)
++
+ clean:
+ 	rm -f private-tmpdir.o private-tmpdir.so

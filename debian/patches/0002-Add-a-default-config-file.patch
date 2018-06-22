@@ -1,0 +1,24 @@
+From: Thomas HAMEL <thomas-externe.hamel@edf.fr>
+Date: Thu, 21 Jun 2018 15:23:26 +0200
+Subject: Add a default config file
+
+The default configuration file is used by the debian packaging.
+---
+ private-tmpdir.conf | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100644 private-tmpdir.conf
+
+diff --git a/private-tmpdir.conf b/private-tmpdir.conf
+new file mode 100644
+index 0000000..8da27b2
+--- /dev/null
++++ b/private-tmpdir.conf
+@@ -0,0 +1,8 @@
++#
++# SLURM plugin stack config file for "private-tmpdir"
++#
++# required/optional    plugin                arguments
++#
++# Note: It's OK to bind-mount /tmp _IF_ you do it as last mount.
++#
++required	/usr/lib/slurm/private-tmpdir.so base=/tmp/slurm mount=/tmp
