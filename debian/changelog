@@ -1,3 +1,11 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci9u1) scibian9; urgency=medium
+
+  * New upstream version 0.20180328.git0dd4a96
+  * Switch to real upstream, implement subdir as patch
+  * Rename binary package to match upstream name
+
+ -- Thomas HAMEL <thomas-externe.hamel@edf.fr>  Fri, 22 Jun 2018 17:50:52 +0200
+
 spank-private-tmp (0.20161205-1sci9u1) scibian9; urgency=medium
 
   * Scibian9 Release.
