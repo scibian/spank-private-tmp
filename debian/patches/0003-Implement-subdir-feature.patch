@@ -59,7 +59,7 @@ index 6e24bc7..8c75028 100644
  Cleanup
  -------
 diff --git a/private-tmpdir.c b/private-tmpdir.c
-index fa97132..1015228 100644
+index fa97132..616f1fd 100644
 --- a/private-tmpdir.c
 +++ b/private-tmpdir.c
 @@ -20,6 +20,7 @@
@@ -118,7 +118,7 @@ index fa97132..1015228 100644
 +	slurm_debug("private-tmpdir: %d subdirs to mount", subdir_count);
 +	for (i = 0; i < subdir_count; i++) {
 +		if (stat(subdir_sources[i], &stat_result) != 0 || ! S_ISDIR(stat_result.st_mode)) {
-+			slurm_error("private-tmpdir: subdir source %s is not a directory, ignoring",
++			slurm_verbose("private-tmpdir: subdir source %s is not a directory, ignoring",
 +					subdir_sources[i]);
 +			continue;
 +		}
