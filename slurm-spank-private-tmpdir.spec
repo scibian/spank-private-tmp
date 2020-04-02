@@ -1,14 +1,18 @@
 %define _use_internal_dependency_generator 0
 %define __find_requires %{_builddir}/find-requires
+%define __plugin private-tmpdir
+%define __lib_dir %{_prefix}/lib
+
 Summary: Slurm SPANK plugin for job private tmpdir
-Name: slurm-spank-private-tmpdir
-Version: 0.0.2
+Name: slurm-spank-plugin-%{__plugin}
+Version: 0.1.0
 Release: 1
 License: GPL
 Group: System Environment/Base
+URL: https://github.com/scibian/spank-private-tmp
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: slurm-devel
+BuildRequires: slurm-devel git
 Requires: slurm
 
 %description
@@ -28,15 +32,18 @@ EOF
 chmod +x %{_builddir}/find-requires
 
 %build
+git apply debian/patches/0003-Implement-subdir-feature.patch
 make all
-gcc -lslurm -o %{_builddir}/libslurm_dummy %{_builddir}/libslurm_dummy.c
+#gcc -g -std=gnu99 -Wall -o %{__plugin}.o -fPIC -c %{__plugin}.c
+#gcc -g -shared -o %{__plugin}.so %{__plugin}.o
+gcc -g -lslurm -o %{_builddir}/libslurm_dummy %{_builddir}/libslurm_dummy.c
 
 %install
-install -d %{buildroot}%{_libdir}/slurm
-install -d %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d
-install -m 755 private-tmpdir.so %{buildroot}%{_libdir}/slurm/
-install -m 644 plugstack.conf \
-    %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d/private-tmpdir.conf
+install -d %{buildroot}%{__lib_dir}/slurm
+#install -d %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d
+install -m 755 %{__plugin}.so %{buildroot}%{__lib_dir}/slurm/
+#install -m 644 plugstack.conf \
+#    %{buildroot}%{_sysconfdir}/slurm/plugstack.conf.d/%{__plugin}.conf
 
 %clean
 rm -rf %{buildroot}
@@ -44,10 +51,12 @@ rm -rf %{buildroot}
 %files
 %doc README LICENSE
 %defattr(-,root,root,-)
-%{_libdir}/slurm/private-tmpdir.so
-%config %{_sysconfdir}/slurm/plugstack.conf.d/private-tmpdir.conf
+%{__lib_dir}/slurm/%{__plugin}.so
+#%config %{_sysconfdir}/slurm/plugstack.conf.d/%{__plugin}.conf
 
 %changelog
+* Fri Jan 10 2020 Kwame Amedodji <kamedodji@yahoo.fr> - 0.1.1-1
+- make plugin more generic / change some paths
 * Thu Feb 02 2017 Pär Lindfors <paran@nsc.liu.se> - 0.0.2-1
 - Support multiple base parameters
 * Mon Feb 16 2015 Pär Lindfors <paran@nsc.liu.se> - 0.0.1-1
