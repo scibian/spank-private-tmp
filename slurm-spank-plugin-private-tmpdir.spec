@@ -1,16 +1,17 @@
-%define _use_internal_dependency_generator 0
 %define __find_requires %{_builddir}/find-requires
 %define __plugin private-tmpdir
 %define __lib_dir %{_prefix}/lib
+%define debug_package %{nil}
 
 Summary: Slurm SPANK plugin for job private tmpdir
 Name: slurm-spank-plugin-%{__plugin}
-Version: 0.1.0
-Release: 1
+Version: 0.1.1
+Release: 2%{?dist}.edf
 License: GPL
 Group: System Environment/Base
 URL: https://github.com/scibian/spank-private-tmp
 Source0: %{name}-%{version}.tar.gz
+Patch0:  Implement-subdir-feature.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: slurm-devel git
 Requires: slurm
@@ -21,6 +22,7 @@ temporary directories for each job.
 
 %prep
 %setup -q
+%patch0 -p1
 # Dummy file used to get a RPM dependency on libslurm.so
 echo 'int main(){}' > %{_builddir}/libslurm_dummy.c
 cat <<EOF > %{_builddir}/find-requires
@@ -32,7 +34,6 @@ EOF
 chmod +x %{_builddir}/find-requires
 
 %build
-git apply debian/patches/0003-Implement-subdir-feature.patch
 make all
 #gcc -g -std=gnu99 -Wall -o %{__plugin}.o -fPIC -c %{__plugin}.c
 #gcc -g -shared -o %{__plugin}.so %{__plugin}.o
@@ -55,6 +56,9 @@ rm -rf %{buildroot}
 #%config %{_sysconfdir}/slurm/plugstack.conf.d/%{__plugin}.conf
 
 %changelog
+* Mon Nov 02 2020 Thomas HAMEL <thomas-t.hamel@edf.fr> - 0.1.1-2.edf
+- Rebuild for slurm 20.02
+
 * Fri Jan 10 2020 Kwame Amedodji <kamedodji@yahoo.fr> - 0.1.1-1
 - make plugin more generic / change some paths
 * Thu Feb 02 2017 Pär Lindfors <paran@nsc.liu.se> - 0.0.2-1
