@@ -1,3 +1,11 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci9u3) scibian9; urgency=medium
+
+  * Rebuild for slurm 20.02
+  * Migrate /etc/{slurm-llnl→slurm}
+  * Bump compat to 10
+
+ -- Rémi Palancher <remi-externe.palancher@edf.fr>  Tue, 15 Dec 2020 15:57:00 +0100
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci9u2) scibian9; urgency=medium
 
   * subdir: Log verbose not error when src missing
