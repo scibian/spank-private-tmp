@@ -1,3 +1,9 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci8u4) scibian8; urgency=medium
+
+  * Rebuild for slurm 20.11
+
+ -- Romaric Kanyamibwa <romaric-externe.kanyamibwa@edf.fr>  Mon, 26 Apr 2021 19:14:24 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci8u3) scibian8; urgency=medium
 
   * Rebuild for slurm 20.02
