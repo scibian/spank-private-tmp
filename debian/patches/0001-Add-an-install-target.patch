@@ -8,7 +8,7 @@ Install target is used by the debian rules
  1 file changed, 9 insertions(+)
 
 diff --git a/Makefile b/Makefile
-index 60b798e..01fe208 100644
+index 60b798e..0de8a30 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,8 +1,17 @@
