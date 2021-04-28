@@ -1,3 +1,10 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci8u2+edf1) scibian8; urgency=medium
+
+  * Add new patch to use again existing directories
+  * Update 0001-Add-an-install-target.patch index
+
+ -- Rémi Palancher <remi-externe.palancher@edf.fr>  Wed, 28 Apr 2021 14:20:03 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci8u2) scibian8; urgency=medium
 
   * subdir: Log verbose not error when src missing
