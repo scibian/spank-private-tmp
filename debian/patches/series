@@ -1,3 +1,4 @@
 0001-Add-an-install-target.patch
 0002-Add-a-default-config-file.patch
 0003-Implement-subdir-feature.patch
+0004-use-gain-existing-directories.patch
