@@ -1,0 +1,77 @@
+From: =?utf-8?q?R=C3=A9mi_Palancher?= <remi-externe.palancher@edf.fr>
+Date: Wed, 28 Apr 2021 09:53:43 +0200
+Subject: Try to use again existing directories
+
+If the various mkdir() fails because the paths already exists (eg. not
+properly removed by previous epilog), try to use it again instead of
+throwing an error and make the job prolog fail.
+---
+ private-tmpdir.c | 34 +++++++++++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 9 deletions(-)
+
+diff --git a/private-tmpdir.c b/private-tmpdir.c
+index 616f1fd..958be45 100644
+--- a/private-tmpdir.c
++++ b/private-tmpdir.c
+@@ -21,6 +21,7 @@
+ #include <unistd.h>
+ #include <sched.h>
+ #include <libgen.h>
++#include <errno.h>
+ 
+ SPANK_PLUGIN(private-tmpdir, 1);
+ 
+@@ -73,9 +74,14 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
+ 		return -1;
+ 	for (i = 0; i < base_count; i++) {
+ 		if (mkdir(base_paths[i], 0700)) {
+-			slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
+-				    base_paths[i]);
+-			return -1;
++			if (errno == EEXIST) {
++				slurm_info("private-tmpdir: directory \"%s\" already exists, try using it.",
++					   base_paths[i]);
++			} else {
++				slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
++					    base_paths[i]);
++				return -1;
++			}
+ 		}
+ 		if (chown(base_paths[i], uid, gid)) {
+ 			slurm_error("private-tmpdir: chown(%s,%u,%u): %m",
+@@ -85,9 +91,14 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
+ 	}
+ 	for (i = 0; i < bind_count; i++) {
+ 		if (mkdir(bind_paths[i], 0700)) {
+-			slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
+-				    bind_paths[i]);
+-			return -1;
++			if (errno == EEXIST) {
++				slurm_info("private-tmpdir: directory \"%s\" already exists, try using it.",
++					   bind_paths[i]);
++			} else {
++				slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
++					    bind_paths[i]);
++				return -1;
++			}
+ 		}
+ 		if (chown(bind_paths[i], uid, gid)) {
+ 			slurm_error("private-tmpdir: chown(%s,%u,%u): %m",
+@@ -97,9 +108,14 @@ int slurm_spank_job_prolog(spank_t sp, int ac, char **av)
+ 	}
+ 	for (i = 0; i < subdir_count; i++) {
+ 		if (mkdir(subdir_dirs[i], 0700)) {
+-			slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
+-				    subdir_dirs[i]);
+-			return -1;
++			if (errno == EEXIST) {
++				slurm_info("private-tmpdir: directory \"%s\" already exists, try using it.",
++					   bind_paths[i]);
++			} else {
++				slurm_error("private-tmpdir: mkdir(\"%s\",0700): %m",
++					    subdir_dirs[i]);
++				return -1;
++			}
+ 		}
+ 		if (chown(subdir_dirs[i], uid, gid)) {
+ 			slurm_error("private-tmpdir: chown(%s,%u,%u): %m",
