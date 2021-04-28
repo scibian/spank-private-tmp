@@ -1,3 +1,10 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci8u5) scibian8; urgency=medium
+
+  * Update 0001-Add-an-install-target.patch index
+  * Add new patch to use again existing directories
+
+ -- Rémi Palancher <remi-externe.palancher@edf.fr>  Wed, 28 Apr 2021 09:59:00 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci8u4) scibian8; urgency=medium
 
   * Rebuild for slurm 20.11
