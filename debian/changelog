@@ -1,3 +1,9 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci10u5) scibian10; urgency=medium
+
+  * New build for Slurm 21.08.7
+
+ -- Mathieu Chouquet-Stringer <mathieu-externe.chouquet-stringer@edf.fr>  Wed, 04 May 2022 17:01:27 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci10u4) scibian10; urgency=medium
 
   * Update 0001-Add-an-install-target.patch index
