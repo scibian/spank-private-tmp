@@ -1,3 +1,9 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci11u1) scibian11; urgency=medium
+
+  * new release for scibian11
+
+ -- Thierno BALDE <thierno.balde@edf.fr>  Fri, 08 Jul 2022 14:56:28 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci10u5) scibian10; urgency=medium
 
   * New build for Slurm 21.08.7
