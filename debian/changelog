@@ -1,3 +1,9 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci9u7) scibian9; urgency=medium
+
+  * New build for Slurm 23.02.3
+
+ -- Nilce BOUSSAMBA <nilce-externe.boussamba@edf.fr>  Mon, 24 Jul 2023 10:30:57 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci9u6) scibian9; urgency=medium
 
   * New build for Slurm 21.08.7
