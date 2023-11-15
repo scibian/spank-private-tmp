@@ -4,7 +4,7 @@
 %define debug_package %{nil}
 
 Summary: Slurm SPANK plugin for job private tmpdir
-Name: slurm-spank-plugin-%{__plugin}
+Name: slurm-spank-plugin-private-tmpdir
 Version: 0.1.1
 Release: 3%{?dist}.edf
 License: GPL
