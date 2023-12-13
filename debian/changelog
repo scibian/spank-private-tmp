@@ -1,3 +1,9 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci10u9) scibian10; urgency=medium
+
+  * enforce slurm version to 23.2
+
+ -- Kwame Amedodji <kwame-externe.amedodji@edf.fr>  Wed, 13 Dec 2023 19:12:18 +0100
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci10u5) scibian10; urgency=medium
 
   * New build for Slurm 21.08.7
