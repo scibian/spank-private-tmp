@@ -1,3 +1,9 @@
+spank-private-tmp (0.20180328.git0dd4a96-0sci11u10) scibian11; urgency=medium
+
+  * Rebuild for slurm 24.05
+
+ -- Thomas HAMEL <thomas-t.hamel@edf.fr>  Mon, 01 Jul 2024 14:15:42 +0200
+
 spank-private-tmp (0.20180328.git0dd4a96-0sci11u9) scibian11; urgency=medium
 
   * enforce slurm version to 23.2
