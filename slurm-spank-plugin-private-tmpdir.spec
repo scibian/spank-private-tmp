@@ -6,15 +6,15 @@
 Summary: Slurm SPANK plugin for job private tmpdir
 Name: slurm-spank-plugin-private-tmpdir
 Version: 0.1.1
-Release: 3%{?dist}.edf
+Release: 4%{?dist}.edf
 License: GPL
 Group: System Environment/Base
 URL: https://github.com/scibian/spank-private-tmp
 Source0: %{name}-%{version}.tar.gz
 Patch0:  Implement-subdir-feature.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: slurm-devel >= 23, slurm-devel < 24, git
-Requires: slurm >= 23, slurm < 24
+BuildRequires: slurm-devel >= 24, slurm-devel < 25, git
+Requires: slurm >= 24, slurm < 25
 
 %description
 Slurm SPANK plugin that uses file system namespaces to create private
@@ -56,6 +56,8 @@ rm -rf %{buildroot}
 #%config %{_sysconfdir}/slurm/plugstack.conf.d/%{__plugin}.conf
 
 %changelog
+* Tue Nov 26 2024 Mathieu Chouquet-Stringer <mathieu-externe.chouquet-stringer> - 0.1.1-4.edf
+- Rebuild for slurm 24.05
 * Wed Nov 15 2023 Mathieu Chouquet-Stringer <mathieu-externe.chouquet-stringer> - 0.1.1-3.edf
 - Rebuild for slurm 23.02
 * Mon Nov 02 2020 Thomas HAMEL <thomas-t.hamel@edf.fr> - 0.1.1-2.edf
